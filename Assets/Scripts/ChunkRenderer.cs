@@ -4,12 +4,12 @@ using UnityEngine;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
 public class ChunkRenderer : MonoBehaviour
 {
-    public const int CHUNK_WIDTH = 10;
-    public const int CHUNK_HEIGHT = 128;
-    public const float BLOCK_SCALE = 0.5f;
+    public const int ChunkWidth = 10;
+    public const int ChunkHeight = 128;
+    public const float BlockScale = 0.5f;
 
-    private List<Vector3> vertecies = new List<Vector3>();
-    private List<int> triangles = new List<int>();
+    private readonly List<Vector3> _vertexes = new();
+    private readonly List<int> _triangles = new();
 
     public ChunkData chunkData;
     public GameWorld parentWorld;
@@ -18,15 +18,15 @@ public class ChunkRenderer : MonoBehaviour
     {
         var chunkMesh = new Mesh();
 
-        for (int y = 0; y < CHUNK_HEIGHT; y++)
-            for (int x = 0; x < CHUNK_WIDTH; x++)
-                for (int z = 0; z < CHUNK_WIDTH; z++)
+        for (var y = 0; y < ChunkHeight; y++)
+            for (var x = 0; x < ChunkWidth; x++)
+                for (var z = 0; z < ChunkWidth; z++)
                 {
                     GenerateBlock(x, y, z);
                 }
 
-        chunkMesh.vertices = vertecies.ToArray();
-        chunkMesh.triangles = triangles.ToArray();
+        chunkMesh.vertices = _vertexes.ToArray();
+        chunkMesh.triangles = _triangles.ToArray();
 
         chunkMesh.Optimize();
 
@@ -34,46 +34,53 @@ public class ChunkRenderer : MonoBehaviour
         chunkMesh.RecalculateBounds();
 
         GetComponent<MeshFilter>().mesh = chunkMesh;
+        UpdateMeshCollider(chunkMesh);
+    }
+
+    private void UpdateMeshCollider(Mesh chunkMesh)
+    {
         GetComponent<MeshCollider>().sharedMesh = chunkMesh;
     }
 
     private BlockType GetBlockAt(Vector3Int blockPosition)
     {
-        if (blockPosition.x >= 0 && blockPosition.x < CHUNK_WIDTH
-            && blockPosition.y >= 0 && blockPosition.y < CHUNK_HEIGHT
-            && blockPosition.z >= 0 && blockPosition.z < CHUNK_WIDTH)
+        if (blockPosition.x is >= 0 and < ChunkWidth 
+            && blockPosition.y is >= 0 and < ChunkHeight 
+            && blockPosition.z is >= 0 and < ChunkWidth)
         {
             return chunkData.blocks[blockPosition.x, blockPosition.y, blockPosition.z];
         }
 
-        if (blockPosition.y < 0 || blockPosition.y >= CHUNK_HEIGHT)
+        if (blockPosition.y is < 0 or >= ChunkHeight)
             return BlockType.Air;
 
         var adjacentChunkPosition = chunkData.position;
 
-        if (blockPosition.x < 0)
+        switch (blockPosition.x)
         {
-            adjacentChunkPosition.x--;
-            blockPosition.x += CHUNK_WIDTH;
-        }
-        else if (blockPosition.x >= CHUNK_WIDTH)
-        {
-            adjacentChunkPosition.x++;
-            blockPosition.x -= CHUNK_WIDTH;
-        }
-
-        if (blockPosition.z < 0)
-        {
-            adjacentChunkPosition.y--;
-            blockPosition.z += CHUNK_WIDTH;
-        }
-        else if (blockPosition.z >= CHUNK_WIDTH)
-        {
-            adjacentChunkPosition.y++;
-            blockPosition.z -= CHUNK_WIDTH;
+            case < 0:
+                adjacentChunkPosition.x--;
+                blockPosition.x += ChunkWidth;
+                break;
+            case >= ChunkWidth:
+                adjacentChunkPosition.x++;
+                blockPosition.x -= ChunkWidth;
+                break;
         }
 
-        if (parentWorld.chunkDatas.TryGetValue(adjacentChunkPosition, out ChunkData adjacentChunk))
+        switch (blockPosition.z)
+        {
+            case < 0:
+                adjacentChunkPosition.y--;
+                blockPosition.z += ChunkWidth;
+                break;
+            case >= ChunkWidth:
+                adjacentChunkPosition.y++;
+                blockPosition.z -= ChunkWidth;
+                break;
+        }
+
+        if (parentWorld.chunksData.TryGetValue(adjacentChunkPosition, out var adjacentChunk))
             return adjacentChunk.blocks[blockPosition.x, blockPosition.y, blockPosition.z];
 
         return BlockType.Air;
@@ -93,74 +100,74 @@ public class ChunkRenderer : MonoBehaviour
         if (GetBlockAt(blockPosition + Vector3Int.down) == 0) GenerateBottomSide(blockPosition);
     }
 
-    private void AddLastVerticiesSquare()
+    private void AddLastVertexesSquare()
     {
-        triangles.Add(vertecies.Count - 4);
-        triangles.Add(vertecies.Count - 3);
-        triangles.Add(vertecies.Count - 2);
+        _triangles.Add(_vertexes.Count - 4);
+        _triangles.Add(_vertexes.Count - 3);
+        _triangles.Add(_vertexes.Count - 2);
 
-        triangles.Add(vertecies.Count - 3);
-        triangles.Add(vertecies.Count - 1);
-        triangles.Add(vertecies.Count - 2);
+        _triangles.Add(_vertexes.Count - 3);
+        _triangles.Add(_vertexes.Count - 1);
+        _triangles.Add(_vertexes.Count - 2);
     }
 
     private void GenerateLeftSide(Vector3Int blockPosition)
     {
-        vertecies.Add((new Vector3(0, 0, 0) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(0, 0, 1) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(0, 1, 0) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(0, 1, 1) + blockPosition) * BLOCK_SCALE);
+        _vertexes.Add((new Vector3(0, 0, 0) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(0, 0, 1) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(0, 1, 0) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(0, 1, 1) + blockPosition) * BlockScale);
 
-        AddLastVerticiesSquare();
+        AddLastVertexesSquare();
     }
 
     private void GenerateRightSide(Vector3Int blockPosition)
     {
-        vertecies.Add((new Vector3(1, 0, 0) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(1, 1, 0) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(1, 0, 1) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(1, 1, 1) + blockPosition) * BLOCK_SCALE);
+        _vertexes.Add((new Vector3(1, 0, 0) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(1, 1, 0) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(1, 0, 1) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(1, 1, 1) + blockPosition) * BlockScale);
 
-        AddLastVerticiesSquare();
+        AddLastVertexesSquare();
     }
 
     private void GenerateFrontSide(Vector3Int blockPosition)
     {
-        vertecies.Add((new Vector3(0, 0, 1) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(1, 0, 1) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(0, 1, 1) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(1, 1, 1) + blockPosition) * BLOCK_SCALE);
+        _vertexes.Add((new Vector3(0, 0, 1) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(1, 0, 1) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(0, 1, 1) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(1, 1, 1) + blockPosition) * BlockScale);
 
-        AddLastVerticiesSquare();
+        AddLastVertexesSquare();
     }
 
     private void GenerateBackSide(Vector3Int blockPosition)
     {
-        vertecies.Add((new Vector3(0, 0, 0) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(0, 1, 0) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(1, 0, 0) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(1, 1, 0) + blockPosition) * BLOCK_SCALE);
+        _vertexes.Add((new Vector3(0, 0, 0) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(0, 1, 0) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(1, 0, 0) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(1, 1, 0) + blockPosition) * BlockScale);
 
-        AddLastVerticiesSquare();
+        AddLastVertexesSquare();
     }
 
     private void GenerateTopSide(Vector3Int blockPosition)
     {
-        vertecies.Add((new Vector3(0, 1, 0) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(0, 1, 1) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(1, 1, 0) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(1, 1, 1) + blockPosition) * BLOCK_SCALE);
+        _vertexes.Add((new Vector3(0, 1, 0) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(0, 1, 1) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(1, 1, 0) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(1, 1, 1) + blockPosition) * BlockScale);
 
-        AddLastVerticiesSquare();
+        AddLastVertexesSquare();
     }
 
     private void GenerateBottomSide(Vector3Int blockPosition)
     {
-        vertecies.Add((new Vector3(0, 0, 0) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(1, 0, 0) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(0, 0, 1) + blockPosition) * BLOCK_SCALE);
-        vertecies.Add((new Vector3(1, 0, 1) + blockPosition) * BLOCK_SCALE);
+        _vertexes.Add((new Vector3(0, 0, 0) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(1, 0, 0) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(0, 0, 1) + blockPosition) * BlockScale);
+        _vertexes.Add((new Vector3(1, 0, 1) + blockPosition) * BlockScale);
 
-        AddLastVerticiesSquare();
+        AddLastVertexesSquare();
     }
 }

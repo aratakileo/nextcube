@@ -1,17 +1,17 @@
 using UnityEngine;
 
-public class TerrainGenerator
+public static class TerrainGenerator
 {
     public static BlockType[,,] GenerateTerrain(float xOff, float yOff)
     {
-        var terrain = new BlockType[ChunkRenderer.CHUNK_WIDTH, ChunkRenderer.CHUNK_HEIGHT, ChunkRenderer.CHUNK_WIDTH];
+        var terrain = new BlockType[ChunkRenderer.ChunkWidth, ChunkRenderer.ChunkHeight, ChunkRenderer.ChunkWidth];
 
-        for (int x = 0; x < ChunkRenderer.CHUNK_WIDTH; x++)
-            for (int z = 0; z < ChunkRenderer.CHUNK_WIDTH; z++)
+        for (var x = 0; x < ChunkRenderer.ChunkWidth; x++)
+            for (var z = 0; z < ChunkRenderer.ChunkWidth; z++)
             {
-                var height = Mathf.PerlinNoise((x * ChunkRenderer.BLOCK_SCALE + xOff) * .2f, (z * ChunkRenderer.BLOCK_SCALE + yOff) * .2f) * 7 + 10;
+                var height = Mathf.PerlinNoise((x * ChunkRenderer.BlockScale + xOff) * .2f, (z * ChunkRenderer.BlockScale + yOff) * .2f) * 7 + 10;
 
-                for (int y = 0; y < height; y++)
+                for (var y = 0; y < height; y++)
                     terrain[x, y, z] = BlockType.Grass;
             }
 
