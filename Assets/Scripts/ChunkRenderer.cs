@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,8 @@ public class ChunkRenderer : MonoBehaviour
     public const int ChunkHeight = 128;
     public const float BlockScale = 0.5f;
 
+    private Mesh blocksMesh;
+    
     private readonly List<Vector3> _vertexes = new();
     private readonly List<int> _triangles = new();
 
@@ -16,30 +19,35 @@ public class ChunkRenderer : MonoBehaviour
 
     private void Start()
     {
-        var chunkMesh = new Mesh();
+        blocksMesh = new Mesh();
 
-        for (var y = 0; y < ChunkHeight; y++)
-            for (var x = 0; x < ChunkWidth; x++)
-                for (var z = 0; z < ChunkWidth; z++)
-                {
-                    GenerateBlock(x, y, z);
-                }
-
-        chunkMesh.vertices = _vertexes.ToArray();
-        chunkMesh.triangles = _triangles.ToArray();
-
-        chunkMesh.Optimize();
-
-        chunkMesh.RecalculateNormals();
-        chunkMesh.RecalculateBounds();
-
-        GetComponent<MeshFilter>().mesh = chunkMesh;
-        UpdateMeshCollider(chunkMesh);
+        GetComponent<MeshFilter>().mesh = blocksMesh;
+        
+        GenerateMesh();
     }
 
-    private void UpdateMeshCollider(Mesh chunkMesh)
+    private void GenerateMesh()
     {
-        GetComponent<MeshCollider>().sharedMesh = chunkMesh;
+        _vertexes.Clear();
+        _triangles.Clear();
+        
+        for (var y = 0; y < ChunkHeight; y++)
+        for (var x = 0; x < ChunkWidth; x++)
+        for (var z = 0; z < ChunkWidth; z++)
+        {
+            GenerateBlock(x, y, z);
+        }
+
+        blocksMesh.triangles = Array.Empty<int>();
+        blocksMesh.vertices = _vertexes.ToArray();
+        blocksMesh.triangles = _triangles.ToArray();
+
+        blocksMesh.Optimize();
+
+        blocksMesh.RecalculateNormals();
+        blocksMesh.RecalculateBounds();
+        
+        GetComponent<MeshCollider>().sharedMesh = blocksMesh;
     }
 
     private BlockType GetBlockAt(Vector3Int blockPosition)
@@ -84,6 +92,36 @@ public class ChunkRenderer : MonoBehaviour
             return adjacentChunk.blocks[blockPosition.x, blockPosition.y, blockPosition.z];
 
         return BlockType.Air;
+    }
+
+    public void SetBlock(Vector3Int inChunkPosition, BlockType blockType)
+    {
+        chunkData.blocks[inChunkPosition.x, inChunkPosition.y, inChunkPosition.z] = blockType;
+        GenerateMesh();
+        
+        // Generate mesh nearby chunks
+        if (inChunkPosition.x is 0 or ChunkWidth - 1)
+        {
+            print("Horizontal");
+            if (parentWorld.chunksData.TryGetValue(chunkData.position + Vector2Int.left, out var nearbyLeft))
+                nearbyLeft.renderer.GenerateMesh();
+
+            if (parentWorld.chunksData.TryGetValue(chunkData.position + Vector2Int.right, out var nearbyRight))
+                nearbyRight.renderer.GenerateMesh();
+        }
+        
+        if (inChunkPosition.z is not (0 or ChunkWidth - 1)) return;
+        
+        if (parentWorld.chunksData.TryGetValue(chunkData.position + Vector2Int.up, out var nearbyUp))
+            nearbyUp.renderer.GenerateMesh();
+
+        if (parentWorld.chunksData.TryGetValue(chunkData.position + Vector2Int.down, out var nearbyDown))
+            nearbyDown.renderer.GenerateMesh();
+    }
+
+    public void DestroyBlock(Vector3Int inChunkPosition)
+    {
+        SetBlock(inChunkPosition, BlockType.Air);
     }
 
     private void GenerateBlock(int x, int y, int z)

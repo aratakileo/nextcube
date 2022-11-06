@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class GameWorld : MonoBehaviour
 {
@@ -10,28 +12,36 @@ public class GameWorld : MonoBehaviour
     public ChunkRenderer chunkPrefab;
     public PlayerControls playerPrefab;
 
-    void Start()
+    public PlayerControls player;
+
+    private void Start()
     {
         for (var x = 0; x < ChunksByX; x++)
             for (var y = 0; y < ChunksByY; y++) {
                 const float ratio = ChunkRenderer.ChunkWidth * ChunkRenderer.BlockScale;
                 var xPos = x * ratio;
-                var zPos = y * ratio;
+                var yPos = y * ratio;
 
                 var chunkData = new ChunkData(
                     new Vector2Int(x, y),
                     TerrainGenerator.GenerateTerrain(
-                        xPos, zPos
+                        xPos, yPos
                         )
                     );
                 chunksData.Add(new Vector2Int(x, y), chunkData);
 
-                var chunk = Instantiate(chunkPrefab, new Vector3(xPos, 0, zPos), Quaternion.identity, transform);
+                var chunk = Instantiate(chunkPrefab, new Vector3(xPos, 0, yPos), Quaternion.identity, transform);
                 chunk.chunkData = chunkData;
                 chunk.parentWorld = this;
+                chunk.chunkData.renderer = chunk;
             }
         
         SpawnPlayer();
+    }
+
+    public Vector2Int GetChunkPositionContainingBlock(Vector3Int blockWorldPos)
+    {
+        return new Vector2Int(blockWorldPos.x / ChunkRenderer.ChunkWidth, blockWorldPos.z / ChunkRenderer.ChunkWidth);
     }
 
     private void SpawnPlayer()
@@ -58,6 +68,7 @@ public class GameWorld : MonoBehaviour
                 break;
             }
         
-        Instantiate(playerPrefab, playerWorldPos, Quaternion.identity, transform);
+        player = Instantiate(playerPrefab, playerWorldPos, Quaternion.identity, transform);
+        player.gameWorld = this;
     }
 }
