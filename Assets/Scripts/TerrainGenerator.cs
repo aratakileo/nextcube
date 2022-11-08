@@ -9,7 +9,7 @@ public static class TerrainGenerator
         for (var x = 0; x < ChunkRenderer.ChunkWidth; x++)
             for (var z = 0; z < ChunkRenderer.ChunkWidth; z++)
             {
-                var height = Mathf.PerlinNoise((x * ChunkRenderer.BlockScale + xOff) * .2f, (z * ChunkRenderer.BlockScale + yOff) * .2f) * 7 + 10;
+                var height = Mathf.PerlinNoise((x + xOff) * .2f, (z + yOff) * .2f) * 7 + 10;
 
                 for (var y = 0; y < height; y++)
                     terrain[x, y, z] = BlockType.Grass;

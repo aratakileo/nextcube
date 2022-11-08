@@ -18,7 +18,7 @@ public class GameWorld : MonoBehaviour
     {
         for (var x = 0; x < ChunksByX; x++)
             for (var y = 0; y < ChunksByY; y++) {
-                const float ratio = ChunkRenderer.ChunkWidth * ChunkRenderer.BlockScale;
+                const float ratio = ChunkRenderer.ChunkWidth;
                 var xPos = x * ratio;
                 var yPos = y * ratio;
 
@@ -56,15 +56,15 @@ public class GameWorld : MonoBehaviour
             playerInChunkPos[i] = Random.Range(0, ChunkRenderer.ChunkWidth - 1);
 
         var playerWorldPos = new Vector3(
-            (playerInChunkPos.x + ChunkRenderer.ChunkWidth * chunkPos.x) * ChunkRenderer.BlockScale,
+            playerInChunkPos.x + ChunkRenderer.ChunkWidth * chunkPos.x,
             0,
-            (playerInChunkPos.y + ChunkRenderer.ChunkWidth * chunkPos.y) * ChunkRenderer.BlockScale
+            playerInChunkPos.y + ChunkRenderer.ChunkWidth * chunkPos.y
             );
 
         for (var chunkY = 0; chunkY < ChunkRenderer.ChunkHeight; chunkY++)
             if (chunkData.blocks[playerInChunkPos.x, chunkY, playerInChunkPos.y] == BlockType.Air)
             {
-                playerWorldPos.y = chunkY * ChunkRenderer.BlockScale;
+                playerWorldPos.y = chunkY;
                 break;
             }
         

@@ -50,10 +50,10 @@ public class PlayerControls : MonoBehaviour
         
         var ray = _camera.ViewportPointToRay(new Vector3(.5f, .5f));
 
-        if (!Physics.Raycast(ray, out var hitInfo, 8 * ChunkRenderer.BlockScale)) return;
+        if (!Physics.Raycast(ray, out var hitInfo, 8)) return;
         
-        var blockCenter = hitInfo.point + hitInfo.normal * ((Input.GetMouseButtonDown(0) ? -1 : 1) * ChunkRenderer.BlockScale) / 2;
-        var blockWorldPos = Vector3Int.FloorToInt(blockCenter / ChunkRenderer.BlockScale);
+        var blockCenter = hitInfo.point + hitInfo.normal * (Input.GetMouseButtonDown(0) ? -1 : 1) / 2;
+        var blockWorldPos = Vector3Int.FloorToInt(blockCenter);
         var chunk2DPos = gameWorld.GetChunkPositionContainingBlock(blockWorldPos);
         
         if (!gameWorld.chunksData.TryGetValue(chunk2DPos, out var chunkData)) return;
