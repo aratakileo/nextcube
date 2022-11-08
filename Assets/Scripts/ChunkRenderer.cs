@@ -101,7 +101,6 @@ public class ChunkRenderer : MonoBehaviour
         // Generate mesh nearby chunks
         if (inChunkPosition.x is 0 or ChunkWidth - 1)
         {
-            print("Horizontal");
             if (parentWorld.chunksData.TryGetValue(chunkData.position + Vector2Int.left, out var nearbyLeft))
                 nearbyLeft.renderer.GenerateMesh();
 
