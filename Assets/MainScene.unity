@@ -241,7 +241,7 @@ GameObject:
   - component: {fileID: 348965309}
   - component: {fileID: 348965308}
   m_Layer: 0
-  m_Name: GameWorld
+  m_Name: World
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -259,7 +259,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5136e2f07a5d2bc46b5b37a4cb0a0848, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkPrefab: {fileID: 3677774613872978281, guid: 9d3674b7959cae649a71c995aeed6153, type: 3}
+  chunkPrefab: {fileID: 5625720686928336945, guid: 9d3674b7959cae649a71c995aeed6153, type: 3}
   playerPrefab: {fileID: 6047261005493643366, guid: 3dd2dbcdea61b6042848f665e215753d, type: 3}
   player: {fileID: 0}
 --- !u!4 &348965309
@@ -270,7 +270,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 348965307}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.990072, y: 47.801083, z: 7.362725}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

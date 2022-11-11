@@ -1,13 +1,15 @@
 using UnityEngine;
 
-public static class TerrainGenerator
+namespace Nextcube
 {
-    public static BlockType[,,] GenerateTerrain(float xOff, float yOff)
+    public static class TerrainGenerator
     {
-        var terrain = new BlockType[ChunkRenderer.ChunkWidth, ChunkRenderer.ChunkHeight, ChunkRenderer.ChunkWidth];
+        public static BlockType[,,] GenerateTerrain(float xOff, float yOff)
+        {
+            var terrain = new BlockType[Chunk.ChunkWidth, Chunk.ChunkHeight, Chunk.ChunkWidth];
 
-        for (var x = 0; x < ChunkRenderer.ChunkWidth; x++)
-            for (var z = 0; z < ChunkRenderer.ChunkWidth; z++)
+            for (var x = 0; x < Chunk.ChunkWidth; x++)
+            for (var z = 0; z < Chunk.ChunkWidth; z++)
             {
                 var height = Mathf.PerlinNoise((x + xOff) * .2f, (z + yOff) * .2f) * 7 + 10;
 
@@ -15,6 +17,7 @@ public static class TerrainGenerator
                     terrain[x, y, z] = BlockType.Grass;
             }
 
-        return terrain;
+            return terrain;
+        }
     }
 }
