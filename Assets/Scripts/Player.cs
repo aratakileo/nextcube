@@ -20,6 +20,9 @@ namespace Nextcube
         {
             _controller = GetComponent<CharacterController>();
             _camera = GetComponentInChildren<Camera>();
+            
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
         }
 
         void Update()
