@@ -68,7 +68,8 @@ MonoBehaviour:
   jumpSpeed: 8
   rotateSpeed: 0.8
   gravity: 20
-  gameWorld: {fileID: 0}
+  highlightingBlock: {fileID: 2120870057204100317, guid: 4b1b0d5f16e700d488bfe27b5ffe31af, type: 3}
+  world: {fileID: 0}
 --- !u!1 &6047261005749892885
 GameObject:
   m_ObjectHideFlags: 0
