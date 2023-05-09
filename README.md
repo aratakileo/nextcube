@@ -1,4 +1,5 @@
 # nextcube - cuboid 3D sandbox (Unity3D) <img src="https://github.com/teacondemns/static.pexty.xyz/blob/main/src/emoji/animated/minecraft.gif?raw=true" height="35"/>
+![](https://github.com/teacondemns/nextcube/blob/main/preview/preview.png?raw=true)
 The functional concept of a cuboid 3D sandbox implemented on Unity3D. The current version of the implementation includes:
 - chunks and generation of their filling (simple Perlin's noise)
 - generating cubes in linked chunks on a fixed area (simple Perlin's noise)
